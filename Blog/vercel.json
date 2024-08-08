@@ -1,33 +1,21 @@
 {
     "builds": [
       {
-        "src": "socialsite/wsgi.py",
+        "src": "Blog/config/wsgi.py",
         "use": "@vercel/python",
-        "config": {
-          "maxLambdaSize": "15mb",
-          "runtime": "python3.9"
-        }
+        "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
       }
     ],
     "routes": [
       {
-        "src": "/static/(.*)",
-        "dest": "/static/$1",
-        "headers": {
-          "Cache-Control": "max-age=31536000, immutable"
-        }
-      },
-      {
-        "src": "/media/(.*)",
-        "dest": "/media/$1",
-        "headers": {
-          "Cache-Control": "max-age=31536000, immutable"
-        }
-      },
-      {
         "src": "/(.*)",
-        "dest": "socialsite/wsgi.py"
+        "dest": "Blog/config/wsgi.py"
       }
     ],
-    
+    "env": {
+      "DJANGO_SETTINGS_MODULE": "config.django.base",
+      
+      
+      
+    }
   }
