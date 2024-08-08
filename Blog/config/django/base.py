@@ -33,7 +33,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env.bool("DJANGO_DEBUG",default=True)
 
-ALLOWED_HOSTS = ["*",'.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh']
 
 
 # Application definition

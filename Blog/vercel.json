@@ -1,33 +1,18 @@
 {
-    "version": 2,
     "builds": [
-      {
-        "src": "requirements.txt",
-        "use": "@vercel/python",
-        "config": {
-          "maxLambdaSize": "50mb"
+        {
+            "src": "conifg/wsgi.py",
+            "use": "@vercel/python",
+            "config": {
+                "maxLambdaSize": "15mb",
+                "runtime": "python3.10"
+            }
         }
-      }
     ],
     "routes": [
-      {
-        "src": "/static/(.*)",
-        "dest": "/socialsite/static/$1"
-      },
-      {
-        "src": "/media/(.*)",
-        "dest": "/media/$1"
-      },
-      {
-        "src": "/(.*)",
-        "dest": "/config/wsgi.py"
-      }
-    ],
-    "env": {
-      "DJANGO_SETTINGS_MODULE": "config.settings.production",
-      
-      "SECRET_KEY": "@secret-key",
-      "DEBUG": "false",
-      "ALLOWED_HOSTS": "your-vercel-url.vercel.app"
-    }
-  }
+        {
+            "src": "/(.*)",
+            "dest": "config/wsgi.py"
+        }
+    ]
+}
