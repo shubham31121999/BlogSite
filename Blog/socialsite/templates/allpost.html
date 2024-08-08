@@ -1,0 +1,472 @@
+{% extends 'base.html' %}
+{%block custom_css%}
+<style>
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed;
+        z-index: 1000; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0, 0, 0, 0.4); /* Black background with opacity */
+    }
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+    }
+    
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .post-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        text-align: center;
+    }
+    
+    .btn-primary {
+        background-color: #007bff;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+    
+    .delete-button {
+        background-color: #dc3545;
+    }
+
+
+/* Container for posts grid*/
+
+.posts-grid-container {
+    max-width:100%; 
+    margin: 0 auto; 
+    padding: 16px; 
+    box-sizing: border-box; 
+}
+
+/* Grid layout for posts */
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 16px;
+}
+
+/* Indiviual posts card*/
+.post-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+/* Style for post images */
+.post-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-top: 8px;
+}
+
+/* Style for buttons */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 4px;
+    border-radius: 4px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.delete-button {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+/* */
+
+.hover-card {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    z-index: 1000;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.hover-card.active {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
+
+.hover-card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.hover-card-content h2 {
+    margin-top: 0;
+}
+
+.hover-card-content label {
+    margin-top: 10px;
+}
+
+.hover-card-content input[type="text"],
+.hover-card-content textarea,
+.hover-card-content select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+.hover-card-content button {
+    margin-top: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.hover-card-content button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.hover-card-content button[type="button"] {
+    background-color: #f44336;
+    color: white;
+}
+
+
+
+
+/* update post */
+.update-form {
+    display: none;
+    position: fixed; /* Use fixed positioning to keep it visible */
+    background: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 300px;
+    z-index: 1000;
+    top: 20%; /* Adjust as needed */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.update-form.active {
+    display: block;
+}
+
+.update-form-content {
+    position: relative;
+}
+
+.update-form .close-update-form {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+
+
+.delete-button {
+    background-color: #f44336; /* Red background */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.delete-button:hover {
+    background-color: #e53935;
+}
+</style>
+{% endblock custom_css %}
+
+{% block main_content %}
+<div class="container">
+    <h1>Your Posts</h1>
+    
+    
+    <!-- Grid Container for Posts -->
+    <div class="posts-grid">
+        {% for post in posts %}
+            <div class="post-card">
+                <div class="post-header">
+                    <h2>{{ post.title }}</h2>
+                    
+                    
+                </div>
+                <p>Author: {{ post.author.first_name }}</p>
+                
+                <div class="post-content">
+                    <p>{{ post.content|slice:":100" }}{% if post.content|length > 100 %}...{% endif %}</p>
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" alt="Post Image" class="post-image">
+                    {% endif %}
+                </div>
+                <div class="post-actions">
+                    <button class="view-button" data-post-id="{{ post.id }}">View Details</button>
+                    <button class="update-button" data-post-id="{{ post.id }}">Update</button>
+                    <form method="POST" action="{% url 'del_post' post.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </div>
+                
+                <div id="update-form-{{ post.id }}" class="update-form"> ''''Update form in hover mode'''
+                    <div class="update-form-content">
+                        <h2>Update Post</h2>
+                        <form class="update-post-form" method="POST" enctype="multipart/form-data" action="{% url 'update_post' post.id %}">
+                            {% csrf_token %}
+                            <label for="title">Title:</label>
+                            <input type="text" name="title" value="{{ post.title }}" required>
+                            
+                            <label for="content">Content:</label>
+                            <textarea name="content" required>{{ post.content }}</textarea>
+                            
+                            <label for="status">Status:</label>
+                            <select name="status" required>
+                                <option value="1" {% if post.status == 1 %}selected{% endif %}>Draft</option>
+                                <option value="2" {% if post.status == 2 %}selected{% endif %}>Published</option>
+                            </select>
+                            
+                            <label for="image">Image:</label>
+                            <input type="file" name="image">
+                            
+                            <button type="submit">Update Post</button>
+                            <button type="button" class="close-update-form" data-post-id="{{ post.id }}">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+    
+                
+                <div id="modal-{{ post.id }}" class="modal">  '''To view post details'''
+                    <div class="modal-content">
+                        <span class="close" data-post-id="{{ post.id }}">&times;</span>
+                        <h2>{{ post.title }}</h2>
+                        <p><strong>Author:</strong> {{ post.author.first_name }} {{ post.author.last_name }}</p>
+                        <p><strong>Created at:</strong> {{ post.created_at|date:"F j, Y" }}</p>
+                        <p><strong>Status:</strong> {{ post.get_status_display }}</p>
+                        <div class="modal-body">
+                            <p>{{ post.content }}</p>
+                            {% if post.image %}
+                                <img src="{{ post.image.url }}" alt="Post Image" class="post-image">
+                            {% endif %}
+                        </div>
+                        <button class="btn btn-primary" data-post-id="{{ post.id }}">Update</button>
+                        <button class="btn btn-secondary close" data-post-id="{{ post.id }}">Back</button>
+                    </div>
+                </div>
+                <div class="like-container">
+                    <i class="fa-solid fa-heart"></i>
+                    <span class="like-count">{{ post.like_count }}</span>
+                </div>
+                <div class="comments-section">
+                    <h3>Comments</h3>
+                    {% if post.limited_comments %}
+                        {% for comment in post.limited_comments %}
+                            <div class="comment-item">
+                                <p><strong>{{ comment.author.username }}:</strong> {{ comment.content }}</p>
+                                <p><small>{{ comment.created_at }}</small></p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No comments yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p>No posts available.</p>
+        {% endfor %}
+    </div>
+</div>
+    
+    
+{% endblock %}
+
+{% block custom_js %}
+<script>
+    // static/js/base.js
+
+document.addEventListener('DOMContentLoaded', function () {
+    const postButton = document.getElementById('post-button');
+    const hoverCard = document.getElementById('hover-card');
+    const closeCard = document.getElementById('close-card');
+    const postForm = document.getElementById('create-post-form');
+
+    // Show the hover card when the "Create Post" button is clicked
+    postButton.addEventListener('click', function () {
+        hoverCard.classList.add('active');
+    });
+
+    // Hide the hover card when "Cancel" is clicked
+    closeCard.addEventListener('click', function () {
+        hoverCard.classList.remove('active');
+    });
+
+    // Handle form submission
+    postForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(postForm);
+
+        fetch(postForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')  
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Network response was not ok.');
+            }
+        })
+        .then(data => {
+            console.log('Success:', data);
+            // Handle success (e.g., show a message, close the card, etc.)
+            hoverCard.classList.remove('active');
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+
+    // Function to get the CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const updateButtons = document.querySelectorAll('.update-button');
+    const closeButtons = document.querySelectorAll('.close-update-form');
+
+    // Show the update form on button click
+    updateButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const postId = button.getAttribute('data-post-id');
+            const updateForm = document.getElementById(`update-form-${postId}`);
+            updateForm.classList.add('active');
+        });
+    });
+
+    // Hide the update form on cancel button click
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const postId = button.getAttribute('data-post-id');
+            const updateForm = document.getElementById(`update-form-${postId}`);
+            updateForm.classList.remove('active');
+        });
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const viewButtons = document.querySelectorAll('.view-button');
+    const closeButtons = document.querySelectorAll('.close');
+    const modals = document.querySelectorAll('.modal');
+
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const postId = this.getAttribute('data-post-id');
+            document.getElementById('modal-' + postId).style.display = 'block';
+        });
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const postId = this.getAttribute('data-post-id');
+            document.getElementById('modal-' + postId).style.display = 'none';
+        });
+    });
+
+    // Close the modal when clicking outside of it
+    window.addEventListener('click', function (event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock custom_js %}

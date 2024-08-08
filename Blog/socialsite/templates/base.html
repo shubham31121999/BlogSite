@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Post</title>
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css"> 
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+</head>
+<body>
+    {% block custom_css %}
+    {% endblock custom_css %}
+
+
+
+    {% include 'navbar.html'%}
+
+    {% block main_content %}
+    {% endblock main_content %}
+
+    
+
+    
+
+    <script src="{% static 'js/base.js' %}"></script>
+    {% block custom_js %}
+    {% endblock custom_js %}
+</body>
+</html>

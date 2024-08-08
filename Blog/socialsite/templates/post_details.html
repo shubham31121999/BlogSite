@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block custom_css %}
+<style>
+    .posts-grid {
+        display: flex;
+        flex-direction: column; /* Stack posts vertically */
+        align-items: center; /* Center the items horizontally */
+        gap: 16px; /* Space between posts */
+        padding: 20px; /* Add padding to the container */
+    }
+    
+    .post-card {
+        width: 100%; /* Make each post take full width of its container */
+        max-width: 800px; /* Set a max-width for better readability */
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        border-radius: 8px;
+        background-color: #fff;
+        cursor: pointer; /* Show pointer cursor to indicate clickable items */
+    }
+    
+    .post-card img {
+        max-width: 100%;
+        height: auto;
+        margin: 10px 0;
+    }
+
+    .like-button, .comment-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .like-button:hover, .comment-button:hover {
+        background-color: #0056b3;
+    }
+
+    .comment-list {
+        margin-top: 20px;
+    }
+
+    .comment-item {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+    }
+
+    .comment-item:last-child {
+        border-bottom: none;
+    }
+    
+    .comment-form {
+        margin-top: 20px;
+    }
+
+    .comment-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .comment-form button {
+        margin-top: 10px;
+        padding: 10px 20px;
+    }
+    .birthday-messages {
+        background-color: #fef8e3; 
+        border: 1px solid #f7e7a2; 
+        border-radius: 8px; 
+        padding: 20px; 
+        margin: 20px 0; 
+        text-align: center; 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    }
+    
+    .birthday-messages h2 {
+        color: #ff9f00; 
+        font-size: 24px; 
+        margin-bottom: 10px; 
+    }
+    
+    .birthday-messages p {
+        color: #333; 
+        font-size: 18px; 
+        font-weight: bold; 
+    }
+</style>
+{% endblock custom_css %}
+{% block main_content %}
+<div class="container">
+    
+    {% if birthday_message %}
+        <div class="birthday-messages">
+            <h2>Birthday Wishes!</h2>
+            <p>{{ birthday_message }}</p>
+        </div>
+    {% endif %}
+    
+    <!-- Grid Container for Posts -->
+    <div class="posts-grid">
+        {% for post in posts %}
+            <div class="post-card">
+                <div class="post-header">
+                    <h2>{{ post.title }}</h2>
+                    <p>Author: {{ post.author.first_name }}</p>
+                </div>
+                <div class="post-content">
+                    <p>{{ post.content }}</p>
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" alt="Post Image">
+                    {% endif %}
+                </div>
+
+                <!-- Like Button -->
+                <form action="{% url 'post_like' post.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="like-button">
+                        {% if user in post.likes.all %}
+                            Unlike ({{ post.like_count }})
+                        {% else %}
+                            Like ({{ post.like_count }})
+                        {% endif %}
+                    </button>
+                </form>
+
+                <!-- Display Comments -->
+                <div class="comment-list">
+                    <h3>Comments</h3>
+                    {% for comment in post.comments.all %}
+                        <div class="comment-item">
+                            <p><strong>{{ comment.author.first_name }}:</strong> {{ comment.content }}</p>
+                            <p><small>{{ comment.created_at }}</small></p>
+                        </div>
+                    {% empty %}
+                        <p>No comments yet.</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Add Comment Form -->
+                {% if user.is_authenticated %}
+                    <div class="comment-form">
+                        <h3>Add a Comment</h3>
+                        <form action="{% url 'comment' post.id %}" method="post">
+                            {% csrf_token %}
+                            <textarea name="content" rows="4" required></textarea>
+                            <button type="submit" class="comment-button">Submit Comment</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <p>You must be logged in to add a comment.</p>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No posts available.</p>
+        {% endfor %}
+        
+    </div>
+</div>
+
+
+{% endblock main_content %}
+
+    
